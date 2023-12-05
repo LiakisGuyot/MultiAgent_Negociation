@@ -1,7 +1,7 @@
 package org.multiagent.agents;
 
-public class Negociateurs extends Agent{
-    public Negociateurs(String name) {
+public class Negociateur extends Agent{
+    public Negociateur(String name) {
         super(name);
     }
 
