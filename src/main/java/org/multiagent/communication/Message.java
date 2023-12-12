@@ -5,25 +5,25 @@ import org.multiagent.agents.Agent;
 public class Message {
 
     private Negociation negociation;
-    private Integer newprice;
+    private String action;
     private Agent sender;
 
-    public Message(Integer content, Agent sender) {
-        this.newprice = content;
+    public Message(String content, Agent sender, Negociation negociation) {
+        this.action = content;
         this.sender = sender;
         this.negociation = negociation;
     }
 
-    public Integer getNewprice() {
-        return newprice;
+    public String getAction() {
+        return this.action;
     }
 
     public Agent getSender() {
         return sender;
     }
 
-    public void setNewprice(Integer newprice) {
-        this.newprice = newprice;
+    public void setAction(String action) {
+        this.action = action;
     }
 
     public void setSender(Agent sender) {
@@ -40,7 +40,7 @@ public class Message {
 
     @Override
     public String toString() {
-        return "Message{" + "proposed_price=" + newprice + ", sender=" + sender + '}';
+        return "Message{" + "action=" + this.action + ", sender=" + this.sender.getId() + '}';
     }
 
 }

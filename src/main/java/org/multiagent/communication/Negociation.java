@@ -13,8 +13,11 @@ public class Negociation {
     private Negociateur negociateur;
     private Billet billet;
     private List<Float> Histoprix;
+    private static int idCounter;
+    private final int id;
 
     public Negociation(Fournisseur fournisseur, Negociateur negociateur, Billet billet) {
+        this.id = idCounter ++;
         this.fournisseur = fournisseur;
         this.negociateur = negociateur;
         this.billet = billet;
@@ -57,4 +60,6 @@ public class Negociation {
     public float getPrice(Integer i){
         return this.Histoprix.get(i);
     }
+
+    public int getId(){return this.id;}
 }

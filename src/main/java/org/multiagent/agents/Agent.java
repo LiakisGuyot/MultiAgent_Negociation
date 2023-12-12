@@ -1,13 +1,16 @@
 package org.multiagent.agents;
 
+import org.multiagent.Environment;
 import org.multiagent.communication.Message;
+import org.multiagent.communication.Negociation;
+import org.multiagent.strategies.Strategie;
 
 import java.util.*;
 
 public abstract class Agent implements Runnable{
-    private static int idCounter = 0;
-    private Queue<Message> bal;
-    private final int id;
+    protected static int idCounter = 0;
+    protected Stack<Message> bal;
+    protected final int id;
     protected final String name;
     protected List<Negociation> negociations;
     protected HashMap<Negociation, Float> objective_prices;
@@ -24,7 +27,10 @@ public abstract class Agent implements Runnable{
     public Agent(String name, Environment env){
         this.id = idCounter++;
         this.name = name;
-        this.bal = new PriorityQueue<Message>();
+        this.bal = new Stack<Message>();
+        this.negociations = new ArrayList<>();
+        this.objective_prices = new HashMap<>();
+        this.env = env;
 
     }
 
