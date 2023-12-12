@@ -22,11 +22,11 @@ public class Fournisseur extends Agent{
         if(result){
             if(nego.getPrice(nego.getHistoprix().size()-1) < this.objective_prices.get(nego)){
                 nego.getNegociateur().depositMessage(new Message("abort", this, nego));
-                this.env.print_result(nego, true);
+                this.env.print_result(nego, false);
             }
             else{
                 nego.getNegociateur().depositMessage(new Message("accept", this, nego));
-                this.env.print_result(nego, false);
+                this.env.print_result(nego, true);
             }
             this.negociations.remove(nego);
             this.objective_prices.remove(nego);
@@ -51,9 +51,25 @@ public class Fournisseur extends Agent{
             Message firstMessage = this.getFirstMessage();
             if (firstMessage != null) {
                 System.out.println(this.name + " received a message from " + firstMessage.getSender().getName() + " : " + firstMessage.getAction() + " (price : " + firstMessage.getNegociation().getPrice(firstMessage.getNegociation().getHistoprix().size()-1) + ")");
-                keep = !appliquerStrategie(firstMessage.getNegociation());
+                if(firstMessage.getAction().equals("accept")){
+                    keep = false;
+                }
+                else if(firstMessage.getAction().equals("abort")){
+                    keep = false;
+                }
+                else if(firstMessage.getAction().equals("keep")){
+                    keep = !appliquerStrategie(firstMessage.getNegociation());
+                }
+                else{
+                    System.out.println("Fournisseur " + this.name + " received an unknown message");
+                }
             } else {
                 System.out.println("Fournisseur " + this.name + " has no message");
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }

@@ -21,13 +21,18 @@ public class Environment implements Runnable{
      * @param outcome true if tickeet sold, false if not
      */
     public void print_result(Negociation nego, boolean outcome){
+        try{
+            sleep(1500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         if(outcome) {
             System.out.println("Ticket " + nego.getBillet().getVilleProvenance() + " to " + nego.getBillet().getVilleDestination()+
-                    " sold to " + nego.getNegociateur().getName() + " by " + nego.getFournisseur().getName());
+                    " sold to " + nego.getNegociateur().getName() + " by " + nego.getFournisseur().getName() + " for " + nego.getPrice(nego.getHistoprix().size()-1));
         }
         else{
             System.out.println("Negociation for ticket "+ nego.getBillet().getVilleProvenance() + " to " + nego.getBillet().getVilleDestination()+
-                    " between " + nego.getNegociateur().getName() + " and " + nego.getFournisseur().getName() + "aborted");
+                    " between " + nego.getNegociateur().getName() + " and " + nego.getFournisseur().getName() + " aborted");
         }
     }
 
@@ -41,8 +46,8 @@ public class Environment implements Runnable{
         negociateur.addNegociation(n1);
         fournisseur.addNegociation(n1);
 
-            negociateur.run();
-            fournisseur.run();
+        new Thread(negociateur).start();
+        new Thread(fournisseur).start();
             try {
                 sleep(100);
             }catch(Exception e){

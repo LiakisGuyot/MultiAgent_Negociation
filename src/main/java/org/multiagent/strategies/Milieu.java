@@ -16,7 +16,7 @@ public class Milieu implements Strategie{
                 negociation.addPrice(objective / 2);
                 return false;
             } else {
-                float antelast = negociation.getPrice(-2);
+                float antelast = negociation.getPrice(negociation.getHistoprix().size()-2);
                 negociation.addPrice((antelast + last) / 2);
                 if((antelast + last) / 2 > objective){
                     return true;
