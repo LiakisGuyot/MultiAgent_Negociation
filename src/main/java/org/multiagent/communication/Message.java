@@ -2,7 +2,7 @@ package org.multiagent.communication;
 
 import org.multiagent.agents.Agent;
 
-public class Message {
+public class Message  {
 
     private Negociation negociation;
     private String action;
