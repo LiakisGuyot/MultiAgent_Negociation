@@ -6,10 +6,11 @@ import org.multiagent.communication.Negociation;
 import org.multiagent.strategies.Strategie;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public abstract class Agent implements Runnable{
     protected static int idCounter = 0;
-    protected Stack<Message> bal;
+    protected ConcurrentLinkedQueue<Message> bal;
     protected final int id;
     protected final String name;
     protected List<Negociation> negociations;
@@ -27,11 +28,10 @@ public abstract class Agent implements Runnable{
     public Agent(String name, Environment env){
         this.id = idCounter++;
         this.name = name;
-        this.bal = new Stack<Message>();
+        this.bal = new ConcurrentLinkedQueue<>();
         this.negociations = new ArrayList<>();
         this.objective_prices = new HashMap<>();
         this.env = env;
-
     }
 
     /**
@@ -39,7 +39,7 @@ public abstract class Agent implements Runnable{
      * @param msg the message to add
      */
     public void depositMessage(Message msg) {
-        this.bal.push(msg);
+        this.bal.add(msg);
     }
 
     /**
@@ -50,10 +50,10 @@ public abstract class Agent implements Runnable{
         if(this.bal.isEmpty()){
             return null;
         }
-        return this.bal.pop();
+        return this.bal.poll();
     }
 
-    public abstract boolean appliquerStrategie(Negociation nego);
+    public abstract void appliquerStrategie(Negociation nego);
 
     public String getName() {
         return name;

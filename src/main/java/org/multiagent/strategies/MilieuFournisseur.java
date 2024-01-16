@@ -14,7 +14,7 @@ public class MilieuFournisseur implements Strategie{
         else {
             float antelast = negociation.getPrice(negociation.getHistoprix().size()-2);
             negociation.addPrice((antelast + last) / 2);
-            if((antelast + last) / 2 < objective){
+            if( negociation.getPrice(negociation.getHistoprix().size()-1) < objective){
                 return true;
             }
             return false;
