@@ -17,6 +17,7 @@ vidéo de présentation :
 ## II/ Contexte 
 Des agents sont en compétition pour négocier le prix d'un billet auprès d'un fournisseur.
 Les agents doivent donc obtenir le billet le plus vite possible et au meilleur prix.
+Ceci est une simulation de négociations sous forme d’enchère descendantes à offres privés. Le premier à offrir un prix convenable gagne, le fournisseur n'est engagé à rien sur les prix qu'il a proposé qui n'ont pas été acceptés à temps.
 
 ## III/ Structure du projet
 Le projet est divisé en 4 packages : 
