@@ -41,7 +41,7 @@ public class Coalition extends Negociateur{
     }
 
     @Override
-    public double evaluatePerformances(Agent agent){
+    public double evaluatePerformances(Negociateur agent){
         double result = 0;
         for(Negociateur n : this.members){
             result = n.evaluatePerformances(this);
@@ -50,6 +50,7 @@ public class Coalition extends Negociateur{
     }
 
 
+    /*
     @Override
     public void appliquerStrategie(Negociation nego) {
         boolean result = this.strat.appliquer(nego, this.objective_prices.get(nego));
@@ -70,17 +71,11 @@ public class Coalition extends Negociateur{
         }
     }
 
-    @Override
-    public void addNegociation(Negociation negociation, double obj_red){
-        super.addNegociation(negociation, obj_red);
-        objective_prices.put(negociation, negociation.getBillet().getPrix() * obj_red);
-        System.out.println(ANSI_PURPLE + "Coalition " + this.name + " created with objective reduction : -" + (1-obj_red) + "%" + ANSI_RESET);
-    }
-
+    /*
     @Override
     public void run() {
         boolean first = true;
-        while(this.active) {
+        while(true) {
             Message firstMessage = this.getFirstMessage();
             if (firstMessage != null) {
                 System.out.println(ANSI_BLUE + this.name + " received a message from " + firstMessage.getSender().getName()
@@ -108,5 +103,9 @@ public class Coalition extends Negociateur{
                 e.printStackTrace();
             }
         }
+    }*/
+
+    public List<Negociateur> getMembers(){
+        return this.members;
     }
 }

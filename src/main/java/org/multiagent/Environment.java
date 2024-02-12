@@ -11,8 +11,10 @@ import org.multiagent.strategies.FactorFournisseur;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.lang.Thread.sleep;
@@ -23,6 +25,8 @@ public class Environment implements Runnable{
     public static final String ANSI_GREEN = "\u001B[32m";
     public static int nbNego =4;
     public static int refreshRate = 10;
+    public static double epsilon = 0.7;
+    public static double decay = 0.9;
     public AtomicBoolean nego_ended = new AtomicBoolean(false);
     public static List<Negociateur> negociateurs = new ArrayList<Negociateur>();
     public static List<Fournisseur> fournisseurs = new ArrayList<Fournisseur>();
@@ -30,6 +34,8 @@ public class Environment implements Runnable{
     public static List<Double> obj_reds = new ArrayList<>();
     public static HashMap<Negociateur, Double> coal_factors = new HashMap<>();
     public static HashMap<Negociateur, Double> coal_obj_reds = new HashMap<>();
+
+    public static Semaphore use_bal = new Semaphore(1, true);
 
     public Environment(){
         super();
@@ -58,9 +64,11 @@ public class Environment implements Runnable{
         coal_factors.put(negociateurs.get(11), 0.7);
         coal_factors.put(negociateurs.get(12), 0.35);
         coal_factors.put(negociateurs.get(13), 0.2);
+        coal_factors.put(negociateurs.get(14), 0.8);
         for(int i = nbNego; i < 14; i++){
             coal_obj_reds.put(negociateurs.get(i), 0.8);
         }
+        coal_factors.put(negociateurs.get(14), 0.7);
         setAllCoalitionsStrat();
     }
 
@@ -146,6 +154,14 @@ public class Environment implements Runnable{
             Coalition c = new Coalition("C " + indexes, members, this);
             negociateurs.add(c);
         }
+        List<Negociateur> members = new ArrayList<>();
+        List<Integer> indexes = new ArrayList<>();
+        for(int k = 0; k < nbNego; k++){
+            members.add(negociateurs.get(k));
+            indexes.add(k);
+        }
+        Coalition c = new Coalition("C " + indexes, members, this);
+        negociateurs.add(c);
     }
 
 
@@ -160,7 +176,7 @@ public class Environment implements Runnable{
     }
 
     public void setAllCoalitionsStrat(){
-        for(int i = 4; i < 14; i++){
+        for(int i = 4; i < 15; i++){
             ((Coalition)negociateurs.get(i)).setStrategie(new Factor(coal_factors.get(negociateurs.get(i))));
         }
     }
@@ -178,15 +194,62 @@ public class Environment implements Runnable{
             if(this.nego_ended.get()){
                 refresh++;
                 if(refresh == refreshRate){
+                    List<Negociateur> singletons = new ArrayList<>();
+                    for(Negociateur n : negociateurs){
+                        if(!(n instanceof Coalition)){
+                            singletons.add(n);
+                        }
+                    }
+                    List<Negociateur> proposedCoalitions = new ArrayList<>();
                     for(Negociateur n : this.getActiveNegociateurs()){
                         System.out.println(n.getName() + " : " + n.evaluatePerformances(n));
-                        //TODO : add a method to create coalitions
+                    }
+                    Collections.shuffle(singletons);
+                    while(!singletons.isEmpty()){
+                        Negociateur single = singletons.get(0);
+                        List<Negociateur> explore = findNotExploredCoalitions(single);
+                        Negociateur newNego;
+                        boolean isOk;
+                        do {
+                            isOk = true;
+                            newNego = single.chooseCoalition(explore, epsilon);
+                            if(newNego instanceof Coalition){
+                                if(!singletons.containsAll(((Coalition)newNego).getMembers())){
+                                    isOk = false;
+                                }
+                                else{
+                                    List<Negociateur> members = new ArrayList<>(((Coalition) newNego).getMembers());
+                                    members.remove(single);
+                                    isOk = checkIfMembersOK(members, newNego);
+                                }
+                            }
+                        }while(!isOk);
+                        if(newNego instanceof Coalition){
+                            singletons.removeAll(((Coalition)newNego).getMembers());
+                        }
+                        else{
+                            singletons.remove(single);
+                        }
+                        proposedCoalitions.add(newNego);
+                    }
+                    for(Negociateur n : this.getActiveNegociateurs()){
+                        n.setActive(false);
+                    }
+                    for(Negociateur n : proposedCoalitions){
+                        if(n instanceof Coalition){
+                            System.out.println(n.getName() + " proposed coalition " + n.getName());
+                        }
+                        else{
+                            System.out.println(n.getName() + " proposed to stay alone");
+                        }
+                        n.setActive(true);
                     }
                     try {
                         sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                    epsilon *= decay;
                     refresh = 0;
                 }
                 this.nego_ended.set(false);
@@ -195,4 +258,31 @@ public class Environment implements Runnable{
             }
         }
     }
+
+    public List<Negociateur> findNotExploredCoalitions(Negociateur n){
+        List<Negociateur> notExplored = new ArrayList<>();
+        List<Negociateur> coalitions = new ArrayList<>();
+        for(Negociateur nego : negociateurs){
+            if(nego instanceof Coalition){
+                coalitions.add(nego);
+            }
+        }
+        for(Negociateur nego : coalitions){
+            if(nego instanceof Coalition){
+                if(!n.getResults_history().containsKey(nego)){
+                    notExplored.add(nego);
+                }
+            }
+        }
+        return notExplored;
+    }
+
+    public boolean checkIfMembersOK(List<Negociateur> members, Negociateur coalition){
+        boolean result = true;
+        for(Negociateur n : members){
+            result = result && n.isOK(coalition, epsilon);
+        }
+        return true;
+    }
+
 }

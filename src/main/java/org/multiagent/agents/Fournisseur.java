@@ -15,6 +15,7 @@ public class Fournisseur extends Agent{
     public static final String ANSI_YELLOW = "\u001B[33m";
     public static final String ANSI_PURPLE = "\u001B[35m";
 
+
     public Fournisseur(String name, Environment env, Strategie strat) {
         super(name, env);
         this.strat = strat;
