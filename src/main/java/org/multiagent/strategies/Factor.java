@@ -1,32 +1,40 @@
 package org.multiagent.strategies;
 
 import org.multiagent.communication.Negociation;
-public class Factor implements Strategie{
-    private float factor;
 
-    public Factor(float factor){
+import java.util.List;
+
+public class Factor implements Strategie{
+    private double factor;
+
+    public Factor(double factor){
         this.factor = factor;
     }
 
     @Override
-    public boolean appliquer(Negociation negociation, Float objective){
-        float last = negociation.getPrice(negociation.getHistoprix().size()-1);
-        if(last < objective){
+    public boolean appliquer(Negociation negociation, Double objective){
+        int lastid = negociation.getHistoprix().size()-1;
+        double last = negociation.getPrice(lastid);
+        if(last <= objective){
             return true;
         }
         else {
-            if (negociation.getHistoprix().size() < 2) {
+            if (lastid == 0) {
                 negociation.addPrice(objective * factor);
                 return false;
-            } else {
-                float antelast = negociation.getPrice(negociation.getHistoprix().size()-2);
-                if((last-antelast) * factor > objective){
-                    negociation.addPrice(antelast);
-                    return false;
+            }
+            else if (lastid >= 3){
+                if(last == negociation.getPrice(lastid-2) && negociation.getPrice(lastid-1) == negociation.getPrice(lastid-3)){
+                    return true;
                 }
-                negociation.addPrice((last-antelast) * factor + antelast);
+            }
+            double antelast = negociation.getPrice(lastid-1);
+            if((last-antelast) * (1-factor)+ antelast > objective){
+                negociation.addPrice(antelast);
                 return false;
             }
+            negociation.addPrice(((last-antelast) * (1-factor) + antelast));
+            return false;
         }
     }
 }

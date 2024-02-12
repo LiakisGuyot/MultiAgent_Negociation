@@ -4,11 +4,9 @@ import org.multiagent.Environment;
 import org.multiagent.communication.Message;
 import org.multiagent.communication.Negociation;
 import org.multiagent.items.Billet;
-import org.multiagent.strategies.MilieuFournisseur;
 import org.multiagent.strategies.Strategie;
 
 import java.util.Iterator;
-import java.util.Random;
 
 public class Fournisseur extends Agent{
 
@@ -28,12 +26,16 @@ public class Fournisseur extends Agent{
         if(result){
             if(nego.getPrice(nego.getHistoprix().size()-1) < this.objective_prices.get(nego)){
                 nego.getNegociateur().depositMessage(new Message("abort", this, nego));
-                this.env.print_result(nego, false);
+                this.negociations.remove(nego);
+                if(this.negociations.isEmpty()) {
+                    this.bal.clear();
+                    this.env.print_result(nego, false);
+                }
             }
             else{
                 nego.getNegociateur().depositMessage(new Message("accept", this, nego));
-                this.env.print_result(nego, true);
                 this.removeNegociationByBillet(nego.getBillet());
+                this.env.print_result(nego, true);
             }
             this.negociations.remove(nego);
             this.objective_prices.remove(nego);
@@ -44,17 +46,9 @@ public class Fournisseur extends Agent{
     }
 
     @Override
-    public void addNegociation(Negociation negociation){
-        super.addNegociation(negociation);
-        Random random = new Random();
-        float objective_reduction = ((float) random.nextGaussian(0.75, 0.25));
-        if(objective_reduction < 0.25){
-            objective_reduction = 0.25f;
-        }
-        else if(objective_reduction > 1){
-            objective_reduction = 0.99f;
-        }
-        objective_reduction = 0.6f;
+    public void addNegociation(Negociation negociation, double obj_red){
+        super.addNegociation(negociation, obj_red);
+        double objective_reduction = obj_red;
         objective_prices.put(negociation, negociation.getBillet().getPrix() * objective_reduction);
         System.out.println(ANSI_PURPLE +
                 "Negociation with " + negociation.getNegociateur().getName() + " created with maximal reduction : -" +
@@ -63,33 +57,30 @@ public class Fournisseur extends Agent{
 
     @Override
     public void run() {
-        boolean keep = true;
-        while (keep) {
+        while (true) {
             Message firstMessage = this.getFirstMessage();
             if (firstMessage != null) {
-                System.out.println(ANSI_YELLOW + this.name + " received a message from " + firstMessage.getSender().getName() + " : "
-                        + firstMessage.getAction() + " (proposed price : " +
-                        firstMessage.getNegociation().getPrice(firstMessage.getNegociation().getHistoprix().size()-1)
-                        + ")" + ANSI_RESET);
-                if(firstMessage.getAction().equals("accept")){
-                    this.removeNegociationByBillet(firstMessage.getNegociation().getBillet());
-                }
-                else if(firstMessage.getAction().equals("abort")){
-                    this.negociations.remove(firstMessage.getNegociation());
-                }
-                else if(firstMessage.getAction().equals("keep") && this.negociations.contains(firstMessage.getNegociation())){
+                if (this.negociations.contains(firstMessage.getNegociation())) {
+                    System.out.println(ANSI_YELLOW + this.name + " received a message from " + firstMessage.getSender().getName() + " : "
+                            + firstMessage.getAction() + " (proposed price : " +
+                            firstMessage.getNegociation().getPrice(firstMessage.getNegociation().getHistoprix().size() - 1)
+                            + ")" + ANSI_RESET);
+                    if (firstMessage.getAction().equals("abort")) {
+                        this.negociations.remove(firstMessage.getNegociation());
+                        if(this.negociations.isEmpty()) {
+                            this.bal.clear();
+                            this.env.print_result(firstMessage.getNegociation(), false);
+                        }
+                    }
+                    else if (firstMessage.getAction().equals("keep") || firstMessage.getAction().equals("accept")) {
                         appliquerStrategie(firstMessage.getNegociation());
+                    }
                 }
                 else{
                     System.out.println( ANSI_YELLOW +
                             "Fournisseur " + this.name + " received an unknown message or a closed negociation"
                             + ANSI_RESET);
                 }
-            }
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         }
     }
@@ -104,7 +95,7 @@ public class Fournisseur extends Agent{
                     while(iterator.hasNext()){
                         Negociation nego = iterator.next();
                         if(nego.getBillet().equals(billet)){
-                            nego.getNegociateur().depositMessage(new Message("abort", this, nego));
+                            nego.getNegociateur().removeNegociation(nego);
                             iterator.remove();
                             this.objective_prices.remove(nego);
                         }

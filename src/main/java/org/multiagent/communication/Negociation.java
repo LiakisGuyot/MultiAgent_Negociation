@@ -12,7 +12,7 @@ public class Negociation {
     private Fournisseur fournisseur;
     private Negociateur negociateur;
     private Billet billet;
-    private List<Float> Histoprix;
+    private List<Double> Histoprix;
     private static int idCounter;
     private final int id;
 
@@ -49,15 +49,15 @@ public class Negociation {
         this.billet = billet;
     }
 
-    public void addPrice(float price){
+    public void addPrice(double price){
         this.Histoprix.add(price);
     }
 
-    public List<Float> getHistoprix(){
+    public List<Double> getHistoprix(){
         return this.Histoprix;
     }
 
-    public float getPrice(Integer i){
+    public double getPrice(Integer i){
         return this.Histoprix.get(i);
     }
 

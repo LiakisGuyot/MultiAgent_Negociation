@@ -1,23 +1,23 @@
 package org.multiagent.items;
 
 public class Billet {
-    private float prix;
+    private double prix;
     private String villeProvenance;
     private String villeDestination;
     private String compagnie;
 
-    public Billet(float prixOrigine, String villeProvenance, String villeDestination, String compagnie) {
+    public Billet(double prixOrigine, String villeProvenance, String villeDestination, String compagnie) {
         this.prix = prixOrigine;
         this.villeProvenance = villeProvenance;
         this.villeDestination = villeDestination;
         this.compagnie = compagnie;
     }
 
-    public float getPrix() {
+    public double getPrix() {
         return prix;
     }
 
-    public void setPrix(float prix) {
+    public void setPrix(double prix) {
         this.prix = prix;
     }
 

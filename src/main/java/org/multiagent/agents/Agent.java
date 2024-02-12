@@ -14,7 +14,7 @@ public abstract class Agent implements Runnable{
     protected final int id;
     protected final String name;
     protected List<Negociation> negociations;
-    protected HashMap<Negociation, Float> objective_prices;
+    protected HashMap<Negociation, Double> objective_prices;
     protected Strategie strat;
 
     protected Environment env;
@@ -59,7 +59,7 @@ public abstract class Agent implements Runnable{
         return name;
     }
 
-    public void addNegociation(Negociation negociation){
+    public void addNegociation(Negociation negociation, double obj_red){
 
         this.negociations.add(negociation);
     }
