@@ -10,6 +10,10 @@ Nous avons ajouter au constructeur de notre classe *Environnement* un booléan p
 Pour activer les coalitions, il suffit de mettre ligne 5 la variable *allowCoalition* à *BOOLEAN.TRUE*
 Pour désactiver les coalitions, il suffit de mettre ligne 5 la variable *allowCoalition* à *BOOLEAN.FALSE*
 
+vidéo de présentation : 
+- Avec coalitions : https://youtu.be/lpOqR8ZoR8s
+- Sans coalitions : https://youtu.be/DlTCmUoK6KY
+
 ## II/ Contexte 
 Des agents sont en compétition pour négocier le prix d'un billet auprès d'un fournisseur.
 Les agents doivent donc obtenir le billet le plus vite possible et au meilleur prix.
