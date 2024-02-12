@@ -73,9 +73,15 @@ public class Fournisseur extends Agent{
                             this.env.print_result(firstMessage.getNegociation(), false);
                         }
                     }
-                    else if (firstMessage.getAction().equals("keep") || firstMessage.getAction().equals("accept")) {
+                    else if (firstMessage.getAction().equals("keep") && this.negociations.contains(firstMessage.getNegociation())) {
                         appliquerStrategie(firstMessage.getNegociation());
                     }
+                    else if (firstMessage.getAction().equals("accept")) {
+                        this.removeNegociationByBillet(firstMessage.getNegociation().getBillet());
+                        this.env.print_result(firstMessage.getNegociation(), true);
+                    }
+
+
                 }
                 else{
                     System.out.println( ANSI_YELLOW +

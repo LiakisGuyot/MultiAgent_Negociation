@@ -10,10 +10,7 @@ import org.multiagent.strategies.Factor;
 import org.multiagent.strategies.FactorFournisseur;
 
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -23,8 +20,10 @@ public class Environment implements Runnable{
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_RED = "\u001B[31m";
     public static final String ANSI_GREEN = "\u001B[32m";
+
+    public static final List<String> listeVilles = Arrays.asList("Paris","Versailles","Lyon","Marseille","Toulouse","Bordeaux","Nantes","Strasbourg","Lille","Nice","Montpellier");
     public static int nbNego =4;
-    public static int refreshRate = 10;
+    public static int refreshRate = 1;
     public static double epsilon = 0.7;
     public static double decay = 0.9;
     public AtomicBoolean nego_ended = new AtomicBoolean(false);
@@ -37,8 +36,11 @@ public class Environment implements Runnable{
 
     public static Semaphore use_bal = new Semaphore(1, true);
 
-    public Environment(){
+    public  Boolean isCoalition;
+
+    public Environment(Boolean isCoalition){
         super();
+        this.isCoalition = isCoalition;
         factors.add(0.9);
         factors.add(0.85);
         factors.add(0.8);
@@ -48,10 +50,10 @@ public class Environment implements Runnable{
         obj_reds.add(0.8);
         obj_reds.add(0.8);
         for (int i = 0; i < nbNego; i++) {
-            Negociateur nego = new Negociateur("Neg " + i, this, new Factor(factors.get(i)));
+            Negociateur nego = new Negociateur("Negotiateur " + i, this, new Factor(factors.get(i)));
             negociateurs.add(nego);
         }
-        Fournisseur fournisseur = new Fournisseur("Four", this, new FactorFournisseur(0.8));
+        Fournisseur fournisseur = new Fournisseur("Fournisseur ", this, new FactorFournisseur(0.8));
         fournisseurs.add(fournisseur);
         createAllCoalitions();
         coal_factors.put(negociateurs.get(4), 0.6);
@@ -184,6 +186,8 @@ public class Environment implements Runnable{
     @Override
     public void run(){
         Billet bil = new Billet(1800, "Lyon", "Paris", "MateB");
+        System.out.println(ANSI_GREEN +
+                "Ticket to be negotiated from : "+ bil.getVilleProvenance() + " to : " +bil.getVilleDestination()+ ", starting price : " + bil.getPrix() + ANSI_RESET);
         newBillet(bil);
         for(Negociateur n : negociateurs){
             new Thread(n).start();
@@ -193,72 +197,87 @@ public class Environment implements Runnable{
         while(true){
             if(this.nego_ended.get()){
                 refresh++;
-                if(refresh == refreshRate){
-                    List<Negociateur> singletons = new ArrayList<>();
-                    for(Negociateur n : negociateurs){
-                        if(!(n instanceof Coalition)){
-                            singletons.add(n);
-                        }
-                    }
-                    List<Negociateur> proposedCoalitions = new ArrayList<>();
-                    for(Negociateur n : this.getActiveNegociateurs()){
-                        System.out.println(n.getName() + " : " + n.evaluatePerformances(n));
-                    }
-                    Collections.shuffle(singletons);
-                    while(!singletons.isEmpty()){
-                        Negociateur single = singletons.get(0);
-                        List<Negociateur> explore = findNotExploredCoalitions(single);
-                        Negociateur newNego;
-                        boolean isOk;
-                        do {
-                            isOk = true;
-                            newNego = single.chooseCoalition(explore, epsilon);
-                            if(newNego instanceof Coalition){
-                                if(!singletons.containsAll(((Coalition)newNego).getMembers())){
-                                    isOk = false;
-                                }
-                                else{
-                                    List<Negociateur> members = new ArrayList<>(((Coalition) newNego).getMembers());
-                                    members.remove(single);
-                                    isOk = checkIfMembersOK(members, newNego);
-                                }
+                if(this.isCoalition == Boolean.TRUE) {
+                    if (refresh == refreshRate) {
+                        List<Negociateur> singletons = new ArrayList<>();
+                        for (Negociateur n : negociateurs) {
+                            if (!(n instanceof Coalition)) {
+                                singletons.add(n);
                             }
-                        }while(!isOk);
-                        if(newNego instanceof Coalition){
-                            singletons.removeAll(((Coalition)newNego).getMembers());
                         }
-                        else{
-                            singletons.remove(single);
+                        List<Negociateur> proposedCoalitions = new ArrayList<>();
+                        for (Negociateur n : this.getActiveNegociateurs()) {
+                            System.out.println(n.getName() + " : " + n.evaluatePerformances(n));
                         }
-                        proposedCoalitions.add(newNego);
-                    }
-                    for(Negociateur n : this.getActiveNegociateurs()){
-                        n.setActive(false);
-                    }
-                    for(Negociateur n : proposedCoalitions){
-                        if(n instanceof Coalition){
-                            System.out.println(n.getName() + " proposed coalition " + n.getName());
+                        Collections.shuffle(singletons);
+                        while (!singletons.isEmpty()) {
+                            Negociateur single = singletons.get(0);
+                            List<Negociateur> explore = findNotExploredCoalitions(single);
+                            Negociateur newNego;
+                            boolean isOk;
+                            do {
+                                isOk = true;
+                                newNego = single.chooseCoalition(explore, epsilon);
+                                if (newNego instanceof Coalition) {
+                                    if (!singletons.containsAll(((Coalition) newNego).getMembers())) {
+                                        isOk = false;
+                                    } else {
+                                        List<Negociateur> members = new ArrayList<>(((Coalition) newNego).getMembers());
+                                        members.remove(single);
+                                        isOk = checkIfMembersOK(members, newNego);
+                                    }
+                                }
+                            } while (!isOk);
+                            if (newNego instanceof Coalition) {
+                                singletons.removeAll(((Coalition) newNego).getMembers());
+                            } else {
+                                singletons.remove(single);
+                            }
+                            proposedCoalitions.add(newNego);
                         }
-                        else{
-                            System.out.println(n.getName() + " proposed to stay alone");
+                        for (Negociateur n : this.getActiveNegociateurs()) {
+                            n.setActive(false);
                         }
-                        n.setActive(true);
+                        for (Negociateur n : proposedCoalitions) {
+                            if (n instanceof Coalition) {
+                                System.out.println(n.getName() + " proposed coalition " + n.getName());
+                            } else {
+                                System.out.println(n.getName() + " proposed to stay alone");
+                            }
+                            n.setActive(true);
+                        }
+                        try {
+                            sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        epsilon *= decay;
+                        refresh = 0;
                     }
-                    try {
-                        sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    epsilon *= decay;
-                    refresh = 0;
                 }
                 this.nego_ended.set(false);
-                Billet bil2 = new Billet(1800, "Lyon", "Paris", "MateB");
+                Random rand = new Random();
+                int prix = rand.nextInt(1000,2500) + 1000;
+                Billet bil2 = generateBillet();
                 newBillet(bil2);
+                System.out.println(ANSI_GREEN +
+                        "Ticket to be negotiated  : from : "+ bil2.getVilleProvenance() + " to : " +bil2.getVilleDestination()+ ", starting price : " + bil2.getPrix() + ANSI_RESET);
             }
         }
     }
 
+    public Billet generateBillet() {
+        Random rand = new Random();
+        int prix = rand.nextInt(1000,2500) + 1000;
+        int ville1 = rand.nextInt(0, listeVilles.size());
+        int ville2 = rand.nextInt(0, listeVilles.size());
+        while(ville1 == ville2){
+            ville2 = rand.nextInt(0, listeVilles.size());
+        }
+        Billet bil = new Billet(prix, listeVilles.get(ville1), listeVilles.get(ville2), "MateB");
+        return bil;
+
+    }
     public List<Negociateur> findNotExploredCoalitions(Negociateur n){
         List<Negociateur> notExplored = new ArrayList<>();
         List<Negociateur> coalitions = new ArrayList<>();
