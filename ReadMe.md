@@ -17,7 +17,7 @@ vidéo de présentation :
 ## II/ Contexte 
 Des agents sont en compétition pour négocier le prix d'un billet auprès d'un fournisseur.
 Les agents doivent donc obtenir le billet le plus vite possible et au meilleur prix.
-Ceci est une simulation de négociations  reprenant le modèle de Rubinstein. Le Fournisseur fait une offre au négociateur. Si ce dernier accepte la négociation se termine. Sinon, c'est le négociateur qui propose un nouveau prix et c'est au Fournisseur d'accepter. Cette négociation s'exécute tant qu'un accord n'est pas trouvé ou qu'il n'est pas possible de trouver de compromis.
+Ceci est une simulation de négociations s'approchant du modèle de Rubinstein. Le Fournisseur fait une offre au négociateur. Si ce dernier accepte la négociation se termine. Sinon, c'est le négociateur qui propose un nouveau prix et c'est au Fournisseur d'accepter. Cette négociation s'exécute tant qu'un accord n'est pas trouvé ou qu'il n'est pas possible de trouver de compromis.
 
 ## III/ Structure du projet
 Le projet est divisé en 4 packages : 
@@ -35,12 +35,13 @@ Nous avons notamment implémenté une variable *refreshRate* qui permet de défi
 Ils ont 2 principaux attributs:
 - un facteur (**factor**)
 - un objectif de réduction (**obj_red**)
+L'association de ces deux facteurs représente plus ou moins bien la valeur d'utilité d'une coalition.
 #### 1.2 Fournisseur
 le fournisseur possède ces deux memes attributs, si ce n'est qu'il ne vend le billet qu'à un prix supérieur à
 obj_red.
 
 
-Si obj_red d'un negociateur est inférieur à celui du fournisseur, il ne pourra jamais acheter le billet.
+Notez : Si obj_red d'un negociateur est inférieur à celui du fournisseur, il ne pourra jamais acheter le billet.
 
 ### 2. Communication
 Les agents communiquent entre eux pour former des coalitions ou négocier. Ils utilisent pour cela des messages de type *Message*.
@@ -57,8 +58,8 @@ Nous avons créer une interface *Strategie* qui définit la méthode *appliquer*
 De la sorte nous standardisons les stratégies utilisées par les agents pour négocier.
 
 Nous avons implémenté 2 stratégies différentes :
-- *Factor* : la stratégie utilisée par les négociateurs. Elle représente le facteur de négociateur du négociateur. Plus ce facteur est proche de 0, plus le négociateur et agressif. Plus ce facteur est proche de 1, plus le négociateur est passif.
-- *FactorFournisseur* : la stratégie utilisée par le fournisseur. Elle représente le facteur de négociation du fournisseur. Plus ce facteur est proche de 0, plus le fournisseur est agressif. Plus ce facteur est proche de 1, plus le fournisseur est passif.
+- *Factor* : la stratégie utilisée par les négociateurs. Elle utilise le facteur de négociation du négociateur. Plus ce facteur est proche de 0, plus le négociateur et agressif. Plus ce facteur est proche de 1, plus le négociateur est passif.
+- *FactorFournisseur* : la stratégie utilisée par le fournisseur. Elle utilise le facteur de négociation du fournisseur. Plus ce facteur est proche de 0, plus le fournisseur est agressif. Plus ce facteur est proche de 1, plus le fournisseur est passif.
 
 
 ## IV. Limitation de notre approche
