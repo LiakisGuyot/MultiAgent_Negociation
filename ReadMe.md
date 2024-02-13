@@ -17,7 +17,7 @@ vidéo de présentation :
 ## II/ Contexte 
 Des agents sont en compétition pour négocier le prix d'un billet auprès d'un fournisseur.
 Les agents doivent donc obtenir le billet le plus vite possible et au meilleur prix.
-Ceci est une simulation de négociations sous forme d’enchère descendantes à offres privés. Le premier à offrir un prix convenable gagne, le fournisseur n'est engagé à rien sur les prix qu'il a proposé qui n'ont pas été acceptés à temps.
+Ceci est une simulation de négociations  reprenant le modèle de Rubinstein. Le Fournisseur fait une offre au négociateur. Si ce dernier accepte la négociation se termine. Sinon, c'est le négociateur qui propose un nouveau prix et c'est au Fournisseur d'accepter. Cette négociation s'exécute tant qu'un accord n'est pas trouvé ou qu'il n'est pas possible de trouver de compromis.
 
 ## III/ Structure du projet
 Le projet est divisé en 4 packages : 
